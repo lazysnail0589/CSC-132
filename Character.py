@@ -1,66 +1,81 @@
 import pygame
 from settings import *
 from support import import_folder
+from entity import Entity
+from tile import Tile
 
-
-class character(pygame.sprite.Sprite):
+class character(Entity):
     def __init__(self, pos, groups, obstacle_sprites):
         super().__init__(groups)
+        self.import_character_assets()
         #character creation
-        self.animation_steps = 7
-        self.animation_cooldown = 500
 
-        self.image = pygame.image.load(r'C:\Users\Javen\PycharmProjects\pythonProject\venv\1dog\1dog.png').convert_alpha()
+
+
+        self.image = self.animations['still'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0,-26)
 
         #graphics
         self.import_character_assets()
-        self.status = '1dog'
-        self.frame_index = 0
-        self.animation_speed = 0.15
+        self.status = 'still'
 
-        self.speed = 5
-        self.direction = pygame.math.Vector2()
+
+        self.speed = 8
+        self.direction = pygame.math.Vector2(0,0)
         self.obstacle_sprites = obstacle_sprites
 
         #jump
-        self.gravity = 0.5
+        self.gravity = 0.8
         self.jump_height = -1
+
+        #champ stats
+        self.stats ={'health': 100, 'damaghurte': 100,'speed': 8}
+        self.health = self.stats['health'] * 0.5
+        self.speed = self.stats['speed']
+
+        self.vulnerable = True
+        self.hurt_time = None
+
+
+
 
     def import_character_assets(self):
         character_path = '../pythonProject/venv/'
-        self.animations = {'1dog': [],'2dog': [], '3dog': [],
-                           '4dog': [],'5dog': [],
-                           '6dog': [],'7dog': []}
+        self.animations = {'still': [],'run': [], 'jump': [],
+                           'fall': []}
         for animation in self.animations.keys():
             full_path = character_path + animation
             self.animations[animation] = import_folder(full_path)
             print(self.animations)
 
     def get_status(self):
-        if self.direction.x == 0 and self.direction.y ==0:
-            #if not '1dog' in self.status:
-            self.status = '1dog'
+        if self.direction.y < 0:
+            self.status = 'jump'
+        elif self.direction.y > 2:
+            self.status = 'fall'
+            print(self.direction.y)
+
+        else:
+            if self.direction.x != 0:
+                self.status = 'run'
+            else:
+                self.status = 'still'
 
     def input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
             self.direction.x = -1
-            self.status = '6dog'
-
             print("left")
         elif keys[pygame.K_RIGHT]:
             self.direction.x = 1
             print("right")
-            self.status = '3dog'
         else:
             self.direction.x = 0
 
         if keys[pygame.K_SPACE]:
             self.jump()
-            self.status = '4dog'
             print("space")
     def apply_gravity(self):
         self.direction.y += self.gravity
@@ -102,15 +117,26 @@ class character(pygame.sprite.Sprite):
                         self.hitbox.top = sprite.hitbox.bottom
     def animate(self):
         animation = self.animations[self.status]
+
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center = self.hitbox.center)
+
+        if not self.vulnerable:
+            alpha = self.wave_value()
+            self.image.set_alpha(alpha)
+        else:
+            self.image.set_alpha(255)
+
     def update(self):
         self.input()
+        self.rect.x += self.direction.x * self.speed
         self.get_status()
         self.animate()
         self.move(self.speed)
         self.apply_gravity()
+
+
