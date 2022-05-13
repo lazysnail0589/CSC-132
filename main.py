@@ -1,7 +1,7 @@
 import pygame, sys
 from level import Level
 from settings import *
-from tile import Coins
+from tile import Coin
 
 class Game:
     def __init__(self):
@@ -12,10 +12,10 @@ class Game:
 
         self.level = Level()
         self.font = pygame.font.SysFont('Comic Sans Ms', 32)
-        self.score = 0
-        self.text = self.font.render('SCore = ' + str(self.score), True,(0,255,0))
-        self.textRect = self.text.get_rect()
-        self.textRect.center = (100,40)
+
+        #self.text = self.font.render('Score = ' + str(self.score), True,(0,255,0))
+        #self.textRect = self.text.get_rect()
+        #self.textRect.center = (100,40)
 
     def run(self):
         while True:
