@@ -27,16 +27,19 @@ class character(Entity):
 
         #jump
         self.gravity = 0.8
-        self.jump_height = -1
+        self.jump_height = -16
+        self.isJump = False
+        self.jumpcount = 20
 
         #champ stats
-        self.stats ={'health': 100, 'damaghurte': 100,'speed': 8}
+        self.stats ={'health': 100, 'damaghurte': 100,'speed': 10}
         self.health = self.stats['health'] * 0.5
         self.speed = self.stats['speed']
 
         self.vulnerable = True
         self.hurt_time = None
 
+        self.facing_right = True
 
 
 
@@ -67,16 +70,34 @@ class character(Entity):
 
         if keys[pygame.K_LEFT]:
             self.direction.x = -1
+            self.facing_right = False
             print("left")
         elif keys[pygame.K_RIGHT]:
             self.direction.x = 1
+            self.facing_right = True
             print("right")
+        elif keys[pygame.K_RIGHT] and keys[pygame.K_SPACE]:
+            self.direction.x = 2
+            self.face_right = True
         else:
             self.direction.x = 0
+        if not(self.isJump):
+            if keys[pygame.K_SPACE]:
+                self.isJump = True
+                #self.jump()
+                print("space")
+        else:
+            if self.jumpcount >= -20:
+                self.neg = 1
+                if self.jumpcount <0:
+                    self.neg = -1
+                self.direction.y -= (self.jumpcount ** 2) * 0.5 * self.neg
+                self.jumpcount -= 1
+            else:
+                self.isJump = False
+                self.jumpcount = 20
 
-        if keys[pygame.K_SPACE]:
-            self.jump()
-            print("space")
+
     def apply_gravity(self):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
@@ -122,14 +143,19 @@ class character(Entity):
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
-        self.image = animation[int(self.frame_index)]
+        image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center = self.hitbox.center)
-
-        if not self.vulnerable:
-            alpha = self.wave_value()
-            self.image.set_alpha(alpha)
+        if self.facing_right:
+            self.image = image
         else:
-            self.image.set_alpha(255)
+            flipped_image = pygame.transform.flip(image, True, False)
+            self.image = flipped_image
+
+        #if not self.vulnerable:
+        #    alpha = self.wave_value()
+        #   self.image.set_alpha(alpha)
+        #else:
+        #   self.image.set_alpha(255)
 
     def update(self):
         self.input()
