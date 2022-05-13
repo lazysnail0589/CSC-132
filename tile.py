@@ -14,7 +14,7 @@ class Tile(pygame.sprite.Sprite):
          self.rect = self.image.get_rect(topleft = pos)
          self.hitbox = self.rect.inflate(0,20)
 
-class Coins(pygame.sprite.Sprite):
+class Coin(pygame.sprite.Sprite):
     def __init__(self,pos,groups):
          super().__init__(groups)
          self.image = pygame.image.load(r'C:\Users\Javen\PycharmProjects\pythonProject\venv\coinandpeach\coin1.png').convert_alpha()
@@ -22,7 +22,10 @@ class Coins(pygame.sprite.Sprite):
          self.rect = self.image.get_rect(topleft = pos)
          self.hitbox = self.rect.inflate(0,20)
 
+
+
     #def coin_collision(self):
         #if character.player.hitbox.colliderect(self.hitbox):
             #del self.image
             #Game.score += 1
+
